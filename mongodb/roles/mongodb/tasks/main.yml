@@ -1,0 +1,40 @@
+- name: Install prerequisite packages
+  apt:
+    name:
+      - curl
+      - gnupg
+      - ca-certificates
+      - apt-transport-https
+    state: present
+    update_cache: yes
+
+
+- name: Create keyring dir
+  file:
+    path: /usr/share/keyrings
+    state: directory
+
+- name: Add mongo GPG
+  shell: |
+    curl -fsSL https://pgp.mongodb.com/server-8.0.asc |  sudo gpg -o /usr/share/keyrings/mongodb-server-8.0.gpg  --dearmor
+  args:
+    creates: /usr/share/keyrings/mongodb-server-8.0.gpg
+
+- name: Add Mongo repo 
+  copy:
+    dest: /etc/apt/sources.list.d/mongodb-org-8.3.list
+    mode: '0644'
+    content: |
+      deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-8.0.gpg ] https://repo.mongodb.org/apt/ubuntu noble/mongodb-org/8.3 multiverse
+
+- name: Install Mongo packages
+  apt:
+    name:
+      - "mongodb-org"
+    update_cache: yes
+
+
+
+
+
+

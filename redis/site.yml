@@ -1,0 +1,23 @@
+---
+- name: Base setup
+  hosts: redis
+  become: true
+  roles:
+    - common
+    - install-redis
+  tags: [init]
+
+- name: Start sentinel master
+  hosts: redis_master
+  become: true
+  roles:
+    - start-sentinel
+  tags: [master]
+
+
+- name: Start sentinel replicas
+  hosts: redis_replicas
+  become: true
+  roles:
+    - start-sentinel
+  tags: [replicas]

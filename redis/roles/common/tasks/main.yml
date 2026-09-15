@@ -1,0 +1,60 @@
+
+- name: Create Redis system group
+  ansible.builtin.group:
+    name: redis
+    state: present
+    system: true
+
+- name: Create Redis system user
+  ansible.builtin.user:
+    name: redis
+    group: redis
+    shell: /usr/sbin/nologin
+    system: true
+    create_home: false
+    state: present
+
+
+
+
+- name: Create directory for redis data 
+  ansible.builtin.file:
+    path: '{{ redis_data_dir }}'
+    state: directory
+    group: '{{ redis_group }}'
+    owner: '{{ redis_user }}'
+    mode: 0755
+  tags:
+    - redis_dirs
+
+
+- name: Create directory for redis pid 
+  ansible.builtin.file:
+    path: '{{ redis_pid_dir }}'
+    state: directory
+    group: '{{ redis_group }}'
+    owner: '{{ redis_user }}'
+    mode: 0755
+  tags:
+    - redis_dirs
+
+
+- name: Create directory for redis application logs
+  ansible.builtin.file:
+    path: '{{ redis_log_dir }}'
+    state: directory
+    group: '{{ redis_group }}'
+    owner: '{{ redis_user }}'
+    mode: 0755
+  tags:
+    - redis_dirs
+
+- name: Create directory for sentinel pid logs
+  ansible.builtin.file:
+    path: '{{ sentinel_pid_dir }}'
+    state: directory
+    group: '{{ sentinel_group }}'
+    owner: '{{ sentinel_user }}'
+    mode: 0755
+  tags:
+    - redis_dirs

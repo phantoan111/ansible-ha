@@ -1,0 +1,96 @@
+
+
+
+
+
+
+
+- name: Install required packages
+  apt:
+    name: ['lsb-release', 'curl', 'gpg']
+    state: present
+    update_cache: yes
+
+
+- name: Create keyring dir
+  file:
+    path: /usr/share/keyrings
+    state: directory
+
+- name: Add Redis GPG key
+  shell: |
+    curl -fsSL https://packages.redis.io/gpg | gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
+  args:
+    creates: /usr/share/keyrings/redis-archive-keyring.gpg
+
+- name: Set permissions on GPG key
+  file:
+    path: /usr/share/keyrings/redis-archive-keyring.gpg
+    mode: '0644'
+
+- name: Add Redis APT repo
+  copy:
+    dest: /etc/apt/sources.list.d/redis.list
+    content: "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb {{ ansible_lsb.codename }} main"
+
+- name: Update APT
+  apt:
+    update_cache: yes
+
+- name: Install Redis Server
+  apt:
+    name: redis-server
+    state: present
+
+- name: Install redis-sentinel
+  apt:
+    name: redis-sentinel
+    state: present
+
+- name: Copy custom redis.conf
+  template:
+    src: redis-v1.conf.j2
+    dest: /etc/redis/redis.conf
+    owner: redis
+    group: redis
+    mode: '0644'
+  # notify: Restart Redis
+
+- name: Copy custom sentinel.conf
+  template:
+    src: sentinel-v1.conf.j2
+    dest: /etc/redis/sentinel.conf
+    owner: redis
+    group: redis
+    mode: '0644'
+  # notify: Restart Sentinel
+
+- name: Copy custom systemd redis
+  template:
+    src: systemd-redis.service.j2
+    dest: /etc/systemd/system/redis-server.service
+    owner: redis
+    group: redis
+    mode: '0644'
+  # notify: Restart Redis
+
+- name: Copy custom sentinel.conf
+  template:
+    src: systemd-sentinel.service.j2
+    dest: /etc/systemd/system/redis-sentinel.service
+    owner: redis
+    group: redis
+    mode: '0644'
+  # notify: Restart Sentinel
+
+
+- name: Force systemd to reread configs (systemctl daemon-reload)
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+
+
+# - name: Enable Redis service
+#   systemd:
+#     name: redis-server
+#     enabled: yes
+

@@ -1,0 +1,14 @@
+#bind {{ ansible_host }}
+bind 0.0.0.0
+port {{ sentinel_port }}
+daemonize yes
+dir "{{ redis_data_dir }}"
+pidfile "{{ redis_data_dir }}/sentinel.pid"
+logfile "{{ redis_data_dir }}/sentinel.log"
+sentinel monitor mymaster {{ hostvars[groups['redis_master'][0]]['ansible_host'] }} 6379 2
+sentinel auth-pass mymaster {{ redis_password }}
+
+
+
+#acllog-max-len 128
+#requirepass {{ redis_password }}

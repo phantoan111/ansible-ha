@@ -1,0 +1,8 @@
+redis_group: "redis"
+redis_user: "redis"
+sentinel_port: "26379"
+redis_port: "6379"
+redis_data_dir: "/data/redis/data"
+redis_log_dir: "/data/redis/log"
+redis_pid_dir: "/data/redis/pid"
+redis_password: "test##134"

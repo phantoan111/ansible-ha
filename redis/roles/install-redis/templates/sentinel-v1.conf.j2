@@ -1,0 +1,32 @@
+
+protected-mode no
+
+port 26379
+
+daemonize no
+
+pidfile "/data/redis/pid/redis-sentinel.pid"
+
+logfile "/data/redis/log/redis-sentinel.log"
+
+
+dir "/data/redis/data"
+
+sentinel monitor mymaster 10.56.3.161 6379 2
+
+
+acllog-max-len 128
+
+
+
+sentinel deny-scripts-reconfig yes
+
+
+sentinel resolve-hostnames no
+
+sentinel announce-hostnames no
+
+
+latency-tracking-info-percentiles 50 99 99.9
+supervised systemd
+user default on nopass ~* &* +@all

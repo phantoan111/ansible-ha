@@ -1,0 +1,37 @@
+global
+      daemon
+      log stdout local0
+      external-check
+      insecure-fork-wanted
+      user haproxy
+      group haproxy
+
+  defaults
+      mode tcp
+      timeout connect 5000ms
+      timeout client 50000ms
+      timeout server 50000ms
+      log global
+
+  # MongoDB Primary Proxy — chỉ forward đến PRIMARY
+  frontend mongodb_primary_frontend
+      bind {{ vip_address }}:27017
+      default_backend mongodb_primary_backend
+
+  backend mongodb_primary_backend
+      balance first
+      option external-check
+      external-check command "/usr/local/bin/mongodb-health-check.sh"
+
+{% for host in groups['masters'] %}
+      server {{ host }} {{ hostvars[host]['ansible_host'] }}:27017 check inter 5000 rise 2 fall 2
+{% endfor %}      
+
+  # HAProxy Stats
+  frontend stats
+      bind *:8404
+      mode http
+      stats enable
+      stats uri /stats
+      stats refresh 10s
+      stats admin if TRUE

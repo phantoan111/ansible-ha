@@ -1,0 +1,26 @@
+storage:
+  dbPath: {{ mongodb_dbpath | default('/var/lib/mongodb') }}
+{% if mongodb_wiredtiger_cache_size_gb is defined and mongodb_wiredtiger_cache_size_gb %}
+  wiredTiger:
+    engineConfig:
+      cacheSizeGB: {{ mongodb_wiredtiger_cache_size_gb }}
+{% endif %}
+
+systemLog:
+  destination: file
+  logAppend: true
+  path: {{ mongodb_logpath | default('/var/log/mongodb/mongod.log') }}
+
+net:
+  port: {{ mongodb_port }}
+  bindIp: 127.0.0.1,{{ ansible_host }}
+
+processManagement:
+  timeZoneInfo: /usr/share/zoneinfo
+
+security:
+  authorization: enabled
+  keyFile: /etc/mongodb-keyfile
+
+replication:
+  replSetName: {{ mongodb_replset_name }}

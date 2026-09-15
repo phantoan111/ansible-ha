@@ -1,0 +1,7 @@
+kubernetes_version: "1.36.1"
+kubernetes_major_minor: "1.36"
+
+cri_o_versions: "v1.36"
+crictl_version: "1.36.0"
+
+calico_version: "3.32.0"

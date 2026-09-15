@@ -1,0 +1,6 @@
+jdk_version: "17"
+kafka_group: "kafka"
+kafka_user: "kafka"
+kafka_dir: ""
+kafka_scala_version: ""
+kafka_version: ""

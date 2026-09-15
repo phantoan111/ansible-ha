@@ -1,0 +1,94 @@
+- name: Install prerequisite packages
+  apt:
+    name:
+      - curl
+      - gnupg
+      - ca-certificates
+      - apt-transport-https
+    state: present
+    update_cache: yes
+
+- name: Create apt keyrings directory
+  file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+
+
+- name: Add Cri-O GPG key
+  shell: |
+    curl -fsSL https://download.opensuse.org/repositories/isv:/cri-o:/stable:/{{ cri_o_versions }}/deb/Release.key \
+      | gpg --dearmor --yes -o /etc/apt/keyrings/cri-o-apt-keyring.gpg
+  args:
+    creates: /etc/apt/keyrings/cri-o-apt-keyring.gpg
+
+
+- name: Add Cri-o repository
+  shell: |
+    echo \
+      "deb [signed-by=/etc/apt/keyrings/cri-o-apt-keyring.gpg] \
+      https://download.opensuse.org/repositories/isv:/cri-o:/stable:/{{ cri_o_versions }}/deb/ /" \
+      > /etc/apt/sources.list.d/cri-o.list
+
+
+- name: Update apt cache
+  apt:
+    update_cache: yes
+
+- name: Install cri-o
+  apt:
+    name:
+      - "crio"
+    state: present
+
+
+
+- name: Create cri-o config directory
+  file:
+    path: /etc/containerd/crio.conf.d
+    state: directory
+
+- name: Copy cri-o file
+  copy:
+    src: 01-kubernetes.conf
+    dest: /etc/containerd/crio.conf.d/01-kubernetes.conf
+
+- name: Reload systemd
+  shell: systemctl daemon-reexec
+
+- name: Restart crio
+  systemd:
+    name: crio
+    enabled: yes
+    state: restarted
+
+- name: Wait for crio socket
+  wait_for:
+    path: /var/run/crio/crio.sock
+    timeout: 30
+
+#Install crictl
+
+- name: Download crictl
+  get_url:
+    url: "https://github.com/kubernetes-sigs/cri-tools/releases/download/v{{ crictl_version }}/crictl-v{{ crictl_version }}-linux-amd64.tar.gz"
+    dest: /tmp/crictl.tar.gz
+
+- name: Extract crictl
+  unarchive:
+    src: /tmp/crictl.tar.gz
+    dest: /usr/local/bin
+    remote_src: yes
+
+- name: Configure crictl
+  copy:
+    dest: /etc/crictl.yaml
+    content: |
+      runtime-endpoint: unix://var/run/containerd/containerd.sock
+      image-endpoint: unix://var/run/containerd/containerd.sock
+      timeout: 10
+      debug: false
+
+      
+
+

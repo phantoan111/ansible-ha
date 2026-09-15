@@ -1,0 +1,40 @@
+- name: Check if replica set is already initialized
+  command: >
+    mongosh --quiet --port {{ mongodb_port }}
+    --eval "rs.status().ok"
+  register: rs_status
+  changed_when: false
+  failed_when: false
+  delegate_to: "{{ groups['mongodb_replicaset'][0] }}"
+  run_once: true
+
+- name: Initialize replica set on first member
+  command: >
+    mongosh --quiet --port {{ mongodb_port }} --eval "
+    rs.initiate({
+      _id: '{{ mongodb_replset_name }}',
+      members: [
+    {% for host in groups['mongodb_replicaset'] %}
+        {
+          _id: {{ loop.index0 }},
+          host: '{{ hostvars[host].ansible_host }}:{{ mongodb_port }}',
+          priority: {{ hostvars[host].mongodb_priority | default(1) }}
+        }{{ ',' if not loop.last else '' }}
+    {% endfor %}
+      ]
+    })"
+  delegate_to: "{{ groups['mongodb_replicaset'][0] }}"
+  run_once: true
+  when: rs_status.stdout != "1"
+
+- name: Wait for replica set election to complete
+  command: >
+    mongosh --quiet --port {{ mongodb_port }}
+    --eval "rs.status().members.filter(m => m.stateStr === 'PRIMARY').length"
+  register: primary_check
+  until: primary_check.stdout | trim == "1"
+  retries: 30
+  delay: 5
+  delegate_to: "{{ groups['mongodb_replicaset'][0] }}"
+  run_once: true
+  changed_when: false
