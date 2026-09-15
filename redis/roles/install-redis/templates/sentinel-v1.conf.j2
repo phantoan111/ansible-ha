@@ -1,9 +1,9 @@
+bind {{ ansible_host }}
+#protected-mode no
 
-protected-mode no
+port {{ sentinel_port }}
 
-port 26379
-
-daemonize no
+daemonize yes
 
 pidfile "/data/redis/pid/redis-sentinel.pid"
 
@@ -12,8 +12,8 @@ logfile "/data/redis/log/redis-sentinel.log"
 
 dir "/data/redis/data"
 
-sentinel monitor mymaster 10.56.3.161 6379 2
-
+sentinel monitor mymaster {{ sentinel_master }} {{ redis_port }} 2
+sentinel auth-pass mymaster {{ redis_password }}
 
 acllog-max-len 128
 
@@ -22,9 +22,9 @@ acllog-max-len 128
 sentinel deny-scripts-reconfig yes
 
 
-sentinel resolve-hostnames no
+#sentinel resolve-hostnames no
 
-sentinel announce-hostnames no
+#sentinel announce-hostnames no
 
 
 latency-tracking-info-percentiles 50 99 99.9

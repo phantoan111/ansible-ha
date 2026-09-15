@@ -1,5 +1,4 @@
-#bind {{ ansible_host }}
-bind 0.0.0.0
+bind {{ ansible_host }}
 port {{ sentinel_port }}
 daemonize yes
 dir "{{ redis_data_dir }}"
