@@ -1,0 +1,27 @@
+- name: Create kafka group
+  ansible.builtin.group:
+    name: '{{ kafka_group }}'
+    state: present
+    system: true
+
+- name: Create kafka user
+  ansible.builtin.user:
+    name: '{{ kafka_user }}'
+    group: '{{ kafka_group }}'
+    state: present
+    createhome: false
+    system: true
+    shell: /usr/sbin/nologin
+
+- name: Create required directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: '{{ kafka_user }}'
+    group: '{{ kafka_user }}'
+    mode: "0750"
+  loop:
+    - "{{ kafka_data_dir }}"
+    - "{{ kafka_log_dir }}"
+    - /opt/kafka
+    - "{{ kafka_root_dir }}"

@@ -1,0 +1,19 @@
+- name: Template configuration file to server.properties
+  ansible.builtin.template:
+    src: server.properties.j2
+    dest: '{{ kafka_root_dir }}/config/server.properties'
+    group: '{{ kafka_group }}'
+    owner: '{{ kafka_user }}'
+    mode: 0644
+  tags:
+    - kafka_config
+
+- name: Template configuration file to zookeeper.properties
+  ansible.builtin.template:
+    src: zookeeper.properties.j2
+    dest: '{{ kafka_dir }}/config/zookeeper.properties'
+    group: '{{ kafka_group }}'
+    owner: '{{ kafka_user }}'
+    mode: 0644
+  tags:
+    - kafka_config

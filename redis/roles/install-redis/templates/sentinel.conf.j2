@@ -1,13 +1,32 @@
 bind {{ ansible_host }}
+#protected-mode no
+
 port {{ sentinel_port }}
+
 daemonize yes
-dir "{{ redis_data_dir }}"
-pidfile "{{ redis_data_dir }}/sentinel.pid"
-logfile "{{ redis_data_dir }}/sentinel.log"
-sentinel monitor mymaster {{ hostvars[groups['redis_master'][0]]['ansible_host'] }} 6379 2
+
+pidfile "/data/redis/pid/redis-sentinel.pid"
+
+logfile "/data/redis/log/redis-sentinel.log"
+
+
+dir "/data/redis/data"
+
+sentinel monitor mymaster {{ sentinel_master }} {{ redis_port }} 2
 sentinel auth-pass mymaster {{ redis_password }}
 
+acllog-max-len 128
 
 
-#acllog-max-len 128
-#requirepass {{ redis_password }}
+
+sentinel deny-scripts-reconfig yes
+
+
+#sentinel resolve-hostnames no
+
+#sentinel announce-hostnames no
+
+
+latency-tracking-info-percentiles 50 99 99.9
+supervised systemd
+user default on nopass ~* &* +@all

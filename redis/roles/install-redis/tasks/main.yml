@@ -49,19 +49,19 @@
 
 - name: Copy custom redis.conf
   template:
-    src: redis-v1.conf.j2
+    src: redis.conf.j2
     dest: /etc/redis/redis.conf
-    owner: redis
-    group: redis
+    owner: '{{ redis_user }}'
+    group: '{{ redis_group }}'
     mode: '0644'
   # notify: Restart Redis
 
 - name: Copy custom sentinel.conf
   template:
-    src: sentinel-v1.conf.j2
+    src: sentinel.conf.j2
     dest: /etc/redis/sentinel.conf
-    owner: redis
-    group: redis
+    owner: '{{ redis_user }}'
+    group: '{{ redis_group }}'
     mode: '0644'
   # notify: Restart Sentinel
 
@@ -69,8 +69,8 @@
   template:
     src: systemd-redis.service.j2
     dest: /etc/systemd/system/redis-server.service
-    owner: redis
-    group: redis
+    owner: '{{ redis_user }}'
+    group: '{{ redis_group }}'
     mode: '0644'
   # notify: Restart Redis
 
@@ -78,8 +78,8 @@
   template:
     src: systemd-sentinel.service.j2
     dest: /etc/systemd/system/redis-sentinel.service
-    owner: redis
-    group: redis
+    owner: '{{ redis_user }}'
+    group: '{{ redis_group }}'
     mode: '0644'
   # notify: Restart Sentinel
 

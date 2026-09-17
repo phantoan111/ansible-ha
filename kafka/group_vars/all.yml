@@ -1,6 +1,11 @@
 jdk_version: "17"
 kafka_group: "kafka"
 kafka_user: "kafka"
-kafka_dir: ""
-kafka_scala_version: ""
+kafka_data_dir: "/data/kafka/data"
+kafka_log_dir: "/data/kafka/log"
+kafka_root_dir: "/opt/kafka"
+scala_version: ""
 kafka_version: ""
+kafka_port: "9092"
+kafka_controller_port: "9093"
+
