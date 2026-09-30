@@ -1,0 +1,19 @@
+clientPort={{ zookeeper_client_port }}
+dataDir={{ zookeeper_data_dir }}
+dataLogDir={{ zookeeper_log_dir }}
+tickTime={{ zookeeper_ticktime }}
+initLimit={{ zookeeper_init_limit }}
+syncLimit={{ zookeeper_sync_limit }}
+maxClientCnxns={{ zookeeper_max_client_cnxns }}
+#minSessionTimeout=30000
+#maxSessionTimeout=300000
+autopurge.snapRetainCount={{ zookeeper_autopurge_snap_retain_count }}
+autopurge.purgeInterval={{ zookeeper_purge_interval }}
+
+
+{% for host in kafka_brokers %}
+server.{{ hostvars[host].kafka_broker_id }}={{ hostvars[host].ansible_host }}:{{ zookeeper_leader_port }}:{{ zookeeper_election_port }}
+{% endfor %} 
+
+
+4lw.commands.whitelist=*

@@ -1,11 +1,50 @@
+#version jdk
 jdk_version: "17"
+
+#kafka user
 kafka_group: "kafka"
 kafka_user: "kafka"
+
+#kafka dir
 kafka_data_dir: "/data/kafka/data"
 kafka_log_dir: "/data/kafka/log"
-kafka_root_dir: "/opt/kafka"
+kafka_root_dir: "/data/kafka"
+
+
+
 scala_version: ""
 kafka_version: ""
+kafka_download_url: "https://archive.apache.org/dist/kafka/{{ kafka_version }}/kafka_{{ scala_version }}-{{ kafka_version }}.tgz"
+
 kafka_port: "9092"
 kafka_controller_port: "9093"
 
+## Zookeeper config
+zookeeper_data_dir: "/data/kafka/data"
+zookeeper_log_dir: "/data/kafka/log"
+
+zookeeper_client_port: "2181"
+zookeeper_ticktime: 3000
+zookeeper_init_limit: 10
+zookeeper_sync_limit: 5
+zookeeper_autopurge_snap_retain_count: 3
+zookeeper_purge_interval: 0
+
+zookeeper_leader_port: 2888
+zookeeper_election_port: 3888
+
+
+
+##Kraft config
+#kafka_cluster_id: ""
+# kraft topic default
+kraft_num_partitions: 3
+kraft_default_replication_factor: 3
+kraft_insync_replicas: 2
+
+
+#Uuid
+kafka_cluster_id: "tStbZk-qQSW5GGm4it_iAA" 
+kafka_controller_id_1: "xcahl_AtQRadUEtyJVT8HQ"
+kafka_controller_id_2: "hlUw8LyLRvea759aYMe5Qg"
+kafka_controller_id_3: "SpaXreUuTIygppNc67jxnA"

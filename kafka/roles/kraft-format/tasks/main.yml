@@ -1,0 +1,26 @@
+- name: Format directory Kraft 
+  ansible.builtin.command:
+    cmd: >
+      {{ kafka_root_dir }}/bin/kafka-storage.sh format
+      --cluster-id  {{ kafka_cluster_id }}
+      --initial-controllers {{ hostvars['kafka-1'].kafka_broker_id }}@{{ hostvars['kafka-1'].ansible_host }}:{{ kafka_controller_port }}:{{ kafka_controller_id_1 }},{{ hostvars['kafka-2'].kafka_broker_id }}@{{ hostvars['kafka-2'].ansible_host }}:{{ kafka_controller_port }}:{{ kafka_controller_id_2 }},{{ hostvars['kafka-3'].kafka_broker_id }}@{{ hostvars['kafka-3'].ansible_host }}:{{ kafka_controller_port }}:{{ kafka_controller_id_3 }}
+      --config {{ kafka_root_dir }}/config/server.properties
+
+
+- name: Set ownership for data dir
+  ansible.builtin.file:
+    path: "{{ kafka_data_dir }}"
+    state: directory
+    owner: kafka
+    group: kafka
+    recurse: true
+
+
+
+# - name: Deploy script format
+#   ansible.builtin.template:
+#     src: format.sh.j2
+#     dest: "{{ kafka_root_dir }}/format.sh"
+#     mode: "755"
+
+# {{ kafka_root_dir }}/bin/kafka-storage.sh format --cluster-id  {{ kafka_cluster_id }} --initial-controllers {{ hostvars['kafka-1'].kafka_broker_id }}@{{ hostvars['kafka-1'].ansible_host }}:{{ kafka_controller_port }}:{{ kafka_controller_id_1 }},{{ hostvars['kafka-2'].kafka_broker_id }}@{{ hostvars['kafka-2'].ansible_host }}:{{ kafka_controller_port }}:{{ kafka_controller_id_2 }},{{ hostvars['kafka-3'].kafka_broker_id }}@{{ hostvars['kafka-3'].ansible_host }}:{{ kafka_controller_port }}:{{ kafka_controller_id_3 }} --config {{ kafka_root_dir }}/config/server.properties
