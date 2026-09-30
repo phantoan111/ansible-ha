@@ -5,6 +5,7 @@
   roles:
     - common
     - install-redis
+    - config-redis
   tags: [init]
 
 - name: Start sentinel master

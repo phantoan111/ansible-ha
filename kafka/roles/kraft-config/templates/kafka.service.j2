@@ -11,8 +11,8 @@ Group={{ kafka_group }}
 
 # Set Java options for production workloads
 # Adjust heap sizes based on available memory
-Environment="KAFKA_HEAP_OPTS=-Xms4g -Xmx4g"
-Environment="KAFKA_JVM_PERFORMANCE_OPTS=-XX:+UseG1GC -XX:MaxGCPauseMillis=20 -XX:InitiatingHeapOccupancyPercent=35"
+Environment="KAFKA_HEAP_OPTS=-{{ kraft_Xms }} -{{ kraft_Xmx }}"
+Environment="KAFKA_JVM_PERFORMANCE_OPTS=-XX:{{ kraft_JVM_PERFORMANCE_OPTS_Use }} -XX:MaxGCPauseMillis={{ kraft_JVM_PERFORMANCE_OPTS_MaxGCPauseMillis }} -XX:InitiatingHeapOccupancyPercent={{ kraft_JVM_PERFORMANCE_OPTS_InitiatingHeapOccupancyPercent }}"
 
 # Start the Kafka server
 ExecStart={{ kafka_root_dir }}/bin/kafka-server-start.sh {{ kafka_root_dir }}/config/server.properties

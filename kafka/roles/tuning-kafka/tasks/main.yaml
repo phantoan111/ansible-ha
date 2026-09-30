@@ -1,0 +1,64 @@
+- name: Set kernel parameters for kafka
+  ansible.posix.sysctl:
+    name: "{{ item.key }}"
+    value: "{{ item.value }}"
+    state: present
+    reload: true
+  loop:
+    - { key: "vm.swappiness", value: "1" }
+    - { key: "vm.max_map_count", value: "262144" }
+    - { key: "fs.file-max", value: "500000" }
+    - { key: "vm.overcommit_memory", value: "1" }
+    - { key: "net.core.somaxconn", value: "65535" }
+    - { key: "net.ipv4.tcp_max_syn_backlog", value: "65535" }
+    - { key: "net.ipv4.tcp_tw_reuse", value: "1" }
+    # - { key: "net.core.wmem_default", value: "16777216" }
+    # - { key: "net.core.rmem_default", value: "16777216" }
+    - { key: "net.core.wmem_max", value: "16777216" }
+    - { key: "net.core.rmem_max", value: "16777216" }
+    - { key: "net.ipv4.tcp_wmem", value: "4096 65536 16777216" }
+    - { key: "net.ipv4.tcp_rmem", value: "4096 65536 16777216" }
+    - { key: "net.ipv4.tcp_window_scaling", value: "1" }
+    - { key: "vm.dirty_ratio", value: "80" }
+    - { key: "vm.dirty_background_ratio", value: "5" }
+    - { key: "net.ipv4.tcp_keepalive_time", value: "60" }
+    - { key: "net.ipv4.tcp_keepalive_intvl", value: "10" }
+    - { key: "net.ipv4.tcp_keepalive_probes", value: "6" }
+    - { key: "net.ipv4.tcp_slow_start_after_idle", value: "0" }
+
+- name: Set file descriptor limits for kafka user
+  ansible.builtin.copy:
+    dest: /etc/security/limits.d/kafka.conf
+    content: |
+      kafka soft nofile 100000
+      kafka hard nofile 100000
+    mode: "0644"
+
+
+- name: Disable Transparent Hug Pages (THP) 
+  ansible.builtin.copy:
+    dest: /sys/kernel/mm/transparent_hugepage/enabled
+    content: |
+      nerver
+    mode: "0644"
+
+- name: Disable Transparent Hug Pages (THP) defrag
+  ansible.builtin.copy:
+    dest: /sys/kernel/mm/transparent_hugepage/defrag
+    content: |
+      nerver
+    mode: "0644"
+
+
+- name: Disable Transparent Hug Pages (THP) rc local
+  ansible.builtin.lineinfile:
+    path: /etc/rc.local
+    line: '{{ item }}'
+    create: true
+    state: present
+    owner: root
+    group: root
+    mode: '0644'
+  with_items:
+    - 'echo never >> /sys/kernel/mm/transparent_hugepage/enabled'
+    - 'echo never >> /sys/kernel/mm/transparent_hugepage/defrag'
