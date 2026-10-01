@@ -1,10 +1,11 @@
 ---
 - name: Base setup
-  hosts: redismongodb
+  hosts: mongodb
   become: true
   roles:
     - common
     - mongodb-install
+    - mongodb-tuning
     - mongodb-config
     - mongodb-start
   tags: [init]

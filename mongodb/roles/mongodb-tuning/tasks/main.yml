@@ -1,0 +1,50 @@
+- name: Set kernel parameters for mongodb
+  ansible.posix.sysctl:
+    name: "{{ item.key }}"
+    value: "{{ item.value }}"
+    state: present
+    reload: true
+  loop:
+    - { key: "vm.max_map_count", value: "262144" }
+    - { key: "net.core.somaxconn", value: "65535" }
+    - { key: "kernel.threads-max", value: "64000" }
+    - { key: "kernel.pid_max", value: "64000" }
+
+- name: Set file descriptor limits for mongodb user
+  ansible.builtin.copy:
+    dest: /etc/security/limits.d/mongodb.conf
+    content: |
+      mongodb soft nofile 100000
+      mongodb hard nofile 100000
+      mongodb soft nproc 100000
+      mongodb hard nproc 100000
+    mode: "0644"
+
+
+- name: Disable Transparent Hug Pages (THP) 
+  ansible.builtin.copy:
+    dest: /sys/kernel/mm/transparent_hugepage/enabled
+    content: |
+      nerver
+    mode: "0644"
+
+- name: Disable Transparent Hug Pages (THP) defrag
+  ansible.builtin.copy:
+    dest: /sys/kernel/mm/transparent_hugepage/defrag
+    content: |
+      nerver
+    mode: "0644"
+
+
+- name: Disable Transparent Hug Pages (THP) rc local
+  ansible.builtin.lineinfile:
+    path: /etc/rc.local
+    line: '{{ item }}'
+    create: true
+    state: present
+    owner: root
+    group: root
+    mode: '0644'
+  with_items:
+    - 'echo never >> /sys/kernel/mm/transparent_hugepage/enabled'
+    - 'echo never >> /sys/kernel/mm/transparent_hugepage/defrag'

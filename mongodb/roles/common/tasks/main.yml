@@ -18,9 +18,9 @@
     path: "{{ item }}"
     state: directory
     owner: '{{ mongodb_user }}'
-    group: '{{ mongodb_user }}'
+    group: '{{ mongodb_group }}'
     mode: "0750"
   loop:
     - "{{ mongodb_data_dir }}"
     - "{{ mongodb_log_dir }}"
-    - "{{ mongodb_root_dir }}"
+#    - "{{ mongodb_root_dir }}"

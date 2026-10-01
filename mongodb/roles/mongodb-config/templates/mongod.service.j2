@@ -5,8 +5,8 @@ After=network-online.target
 Wants=network-online.target
 
 [Service]
-User={{ mongod_user }}
-Group={{ mongod_group }}
+User={{ mongodb_user }}
+Group={{ mongodb_group }}
 EnvironmentFile=-/etc/default/mongod
 Environment="MONGODB_CONFIG_OVERRIDE_NOFORK=1"
 Environment="GLIBC_TUNABLES=glibc.pthread.rseq=0"
