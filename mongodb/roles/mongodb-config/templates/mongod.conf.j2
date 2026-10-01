@@ -1,5 +1,5 @@
 storage:
-  dbPath: {{ mongodb_dbpath | default('/var/lib/mongodb') }}
+  dbPath: {{ mongodb_data_dir }}
 {% if mongodb_wiredtiger_cache_size_gb is defined and mongodb_wiredtiger_cache_size_gb %}
   wiredTiger:
     engineConfig:
@@ -9,7 +9,7 @@ storage:
 systemLog:
   destination: file
   logAppend: true
-  path: {{ mongodb_logpath | default('/var/log/mongodb/mongod.log') }}
+  path: {{ mongodb_log_dir }}/mongod.log
 
 net:
   port: {{ mongodb_port }}
@@ -18,9 +18,9 @@ net:
 processManagement:
   timeZoneInfo: /usr/share/zoneinfo
 
-security:
-  authorization: enabled
-  keyFile: /etc/mongodb-keyfile
+#security:
+#  authorization: enabled
+#  keyFile: /etc/mongodb-keyfile
 
 replication:
   replSetName: {{ mongodb_replset_name }}

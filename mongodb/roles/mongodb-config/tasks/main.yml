@@ -1,0 +1,19 @@
+- name: Config mongodb
+  template:
+    src: mongod.conf.j2
+    dest: /etc/mongod.conf
+    owner: '{{ mongodb_user }}'
+    group: '{{ mongodb_group }}'
+    mode: '0644'
+
+- name: Copy custom systemd mongodb
+  template:
+    src: mongod.service.j2
+    dest: /usr/lib/systemd/system/mongod.service
+    owner: '{{ mongodb_user }}'
+    group: '{{ mongodb_group }}'
+    mode: '0644'
+
+- name: Force systemd to reread configs (systemctl daemon-reload)
+  ansible.builtin.systemd_service:
+    daemon_reload: true

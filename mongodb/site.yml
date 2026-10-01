@@ -1,2 +1,19 @@
 ---
-- name: 
+- name: Base setup
+  hosts: redismongodb
+  become: true
+  roles:
+    - common
+    - mongodb-install
+    - mongodb-config
+    - mongodb-start
+  tags: [init]
+
+- name: Start primary mongodb
+  hosts: mongodb-primary
+  become: true
+  roles:
+    - primary-init
+  tags: [primary]
+
+
