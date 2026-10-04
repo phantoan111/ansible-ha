@@ -3,6 +3,7 @@
     name: "{{ item.key }}"
     value: "{{ item.value }}"
     state: present
+    sysctl_set: true
     reload: true
   loop:
     - { key: "vm.swappiness", value: "1" }
