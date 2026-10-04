@@ -1,0 +1,9 @@
+- name: Restart Redis
+  systemd:
+    name: redis-sentinel
+    state: restarted
+
+- name: Restart Redis
+  systemd:
+    name: redis-server
+    state: restarted

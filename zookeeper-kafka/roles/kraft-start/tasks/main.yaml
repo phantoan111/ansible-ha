@@ -1,0 +1,6 @@
+
+- name: Start kafka
+  systemd:
+    name: kafka
+    state: started
+    enabled: true

@@ -1,0 +1,34 @@
+---
+- name: Base setup
+  hosts: kafka_controllers
+  become: true
+  roles:
+    - common
+    - install-kafka
+    - java
+    - kraft-config
+  tags: [install]
+
+
+- name: Format data dir 
+  hosts: kafka_controllers
+  become: true
+  roles:
+    - kraft-format
+  tags: [format-dir]
+
+
+- name: Start leader
+  hosts: leader_controller
+  become: true
+  roles:
+    - kraft-start
+  tags: [leader-start]
+
+- name: Start replication
+  hosts: replication_controller
+  become: true
+  roles:
+    - kraft-start
+  tags: [replication-start]
+  

@@ -1,0 +1,33 @@
+[Unit]
+# Service description and documentation
+Description=Apache Kafka Server (KRaft Mode)
+Documentation=https://kafka.apache.org/documentation/
+After=network.target
+
+[Service]
+# Run as the dedicated kafka user
+User={{ kafka_user }}
+Group={{ kafka_group }}
+
+# Set Java options for production workloads
+# Adjust heap sizes based on available memory
+Environment="KAFKA_HEAP_OPTS=-{{ kraft_Xms }} -{{ kraft_Xmx }}"
+Environment="KAFKA_JVM_PERFORMANCE_OPTS=-XX:{{ kraft_JVM_PERFORMANCE_OPTS_Use }} -XX:MaxGCPauseMillis={{ kraft_JVM_PERFORMANCE_OPTS_MaxGCPauseMillis }} -XX:InitiatingHeapOccupancyPercent={{ kraft_JVM_PERFORMANCE_OPTS_InitiatingHeapOccupancyPercent }}"
+
+# Start the Kafka server
+ExecStart={{ kafka_root_dir }}/bin/kafka-server-start.sh {{ kafka_root_dir }}/config/server.properties
+
+# Graceful shutdown with 30 second timeout
+ExecStop={{ kafka_root_dir }}/bin/kafka-server-stop.sh
+TimeoutStopSec=30
+
+# Restart automatically on failure
+Restart=on-failure
+RestartSec=10
+ReadWriteDirectories={{ kafka_root_dir }}
+
+# Limit file descriptors for high connection counts
+LimitNOFILE=100000
+
+[Install]
+WantedBy=multi-user.target
