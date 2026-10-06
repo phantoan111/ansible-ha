@@ -1,15 +1,40 @@
 global
-    log /dev/log local0
+    log stdout format raw local0
+    daemon
 
 defaults
+    mode                    http
+    log                     global
+    option                  httplog
+    option                  dontlognull
+    option http-server-close
+    option forwardfor       except 127.0.0.0/8
+    option                  redispatch
+    retries                 1
+    timeout http-request    10s
+    timeout queue           20s
+    timeout connect         5s
+    timeout client          35s
+    timeout server          35s
+    timeout http-keep-alive 10s
+    timeout check           10s
+
+frontend apiserver
+    bind *:{{ api_server_fe_port }}
     mode tcp
-    timeout connect 10s
-    timeout client 1m
-    timeout server 1m
+    option tcplog
+    default_backend apiserverbackend
 
-frontend kubernetes
-    bind *:8443
-    default_backend kubernetes-master-nodes
+backend apiserverbackend
+    option httpchk
 
-backend kubernetes-master-nodes
-    balsne
+    http-check connect ssl
+    http-check send meth GET uri /healthz
+    http-check expect status 200
+
+    mode tcp
+    balance     roundrobin
+    
+{% for host in groups['masters'] %}
+    server {{ host }} {{ hostvars[host]['ansible_host'] }}:{{ api_server_be_port }} check verify none
+{% endfor %}

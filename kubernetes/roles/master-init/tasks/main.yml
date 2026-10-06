@@ -1,0 +1,101 @@
+- name: Generate kubeadm config
+  template:
+    src: kubeadm-config.yaml.j2
+    dest: /tmp/kubeadm-config.yaml
+
+
+- name: Initialize control plane with kubeadm
+  ansible.builtin.command:
+    cmd: >
+      kubeadm init --config /tmp/kubeadm-config.yaml 
+  register: init_result
+
+- name: Create .kube directory for root
+  ansible.builtin.file:
+    path: /root/.kube
+    state: directory
+    mode: '0755'
+
+- name: Copy admin config
+  ansible.builtin.copy:
+    src: /etc/kubernetes/admin.conf
+    dest: /root/.kube/config
+    remote_src: yes
+    owner: root
+    group: root
+    changed_when: false
+
+
+# ======================
+# CALICO
+# ======================
+
+
+
+- name: Install Calico CRDs
+  ansible.builtin.command:
+    cmd: kubectl apply --server-side -f https://raw.githubusercontent.com/projectcalico/calico/v{{ calico_version }}/manifests/operator-crds.yaml
+  register: calico_crd
+  failed_when:
+    - calico_crd.rc != 0
+    - "'AlreadyExists' not in calico_crd.stderr"
+  changed_when:
+    - "'created' in calico_crd.stdout"
+  environment:
+    KUBECONFIG: /root/.kube/config
+
+- name: Install Tigera operator
+  ansible.builtin.command:
+    cmd: kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v{{ calico_version }}/manifests/tigera-operator.yaml
+  register: tigera_operator
+  failed_when:
+    - tigera_operator.rc != 0
+    - "'AlreadyExists' not in tigera_operator.stderr"
+  changed_when:
+    - "'created' in tigera_operator.stdout"
+  environment:
+    KUBECONFIG: /root/.kube/config
+
+- name: Create Calico installation manifest
+  template:
+    src: calico-custom-resources.yaml.j2
+    dest: /tmp/calico-custom-resources.yaml
+
+- name: Install Calico CRDs
+  ansible.builtin.command:
+    cmd: kubectl apply -f /tmp/calico-custom-resources.yaml
+  environment:
+    KUBECONFIG: /root/.kube/config
+
+- name: Wait for calico pods to exist
+  ansible.builtin.command:
+    cmd: kubectl get pods -n calico-system -l k8s-app=calico-node --no-headers
+  environment:
+    KUBECONFIG: /root/.kube/config
+  register: calico_pods
+  retries: 30
+  delay: 10
+  until: calico_pods.stdout != ""
+  changed_when: false
+
+
+- name: Wait for control plane pods to be ready
+  ansible.builtin.command:
+    cmd: kubectl get pods -n kube-system -o json
+  register: kube_pods
+  until: >
+    (kube_pods.stdout | from_json).items |
+    selectattr('status.phase', 'equalto', 'Running') | list | length >= 4
+  retries: 30
+  delay: 10
+  changed_when: false
+
+
+- name: Generate join command
+  ansible.builtin.command: kubeadm token create --print-join-command
+  register: join_command
+  changed_when: false
+
+- name: Save join command
+  ansible.builtin.set_fact:
+    k8s_join_command: "{{ join_command.stdout }}"

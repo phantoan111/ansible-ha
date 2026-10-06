@@ -1,0 +1,26 @@
+- name: Install keepalived
+  apt:
+    name: keepalived
+    state: present
+    update_cache: true
+
+- name: Copy health check script
+  ansible.builtin.template:
+    src: check_apiserver.sh.j2
+    dest: /etc/keepalived/check_apiserver.sh
+    mode: '0755'
+
+- name: Configure keepalived
+  ansible.builtin.template:
+    src: keepalived.conf.j2
+    dest: /etc/keepalived/keepalived.conf
+
+- name: Force systemd to reread configs (systemctl daemon-reload)
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+
+- name: Enable keepalived
+  ansible.builtin.systemd:
+    name: keepalived
+    enabled: yes
+    state: restarted
