@@ -9,7 +9,7 @@
     name: '{{ mongodb_user }}'
     group: '{{ mongodb_group }}'
     state: present
-    createhome: false
+    create_home: false
     system: true
     shell: /usr/sbin/nologin
 

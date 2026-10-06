@@ -8,9 +8,9 @@
   user:
     name: "{{ node_exporter_user }}"
     group: "{{ node_exporter_group }}"
-    system: yes
-    shell: "/sbin/nologin"
-    createhome: "no"
+    system: true
+    shell: /usr/sbin/nologin
+    create_home: false
     state: present
 
 

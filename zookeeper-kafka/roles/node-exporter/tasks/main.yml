@@ -10,10 +10,9 @@
     name: "{{ node_exporter_user }}"
     group: "{{ node_exporter_group }}"
     system: true
-    shell: "/sbin/nologin"
-    createhome: "no"
+    shell: /usr/sbin/nologin
+    create_home: false
     state: present
-
 
 
 - name: Install prometheus node exporter
