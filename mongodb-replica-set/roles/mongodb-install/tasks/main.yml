@@ -13,6 +13,9 @@
   file:
     path: /usr/share/keyrings
     state: directory
+    owner: root
+    group: root
+    mode: '0755'
 
 - name: Add mongo GPG
   shell: |

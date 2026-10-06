@@ -1,6 +1,8 @@
 - name: Creating node_exporter user group
-  group: name="{{ node_exporter_group }}"
-  become: true
+  ansible.builtin.group:
+    name: '{{ node_exporter_group }}'
+    state: present
+    system: true
 
 - name: Creating node_exporter user
   user:
@@ -25,10 +27,8 @@
     dest: "/usr/local/bin/node_exporter"
     owner: "{{ node_exporter_user }}"
     group: "{{ node_exporter_group }}"
-    remote_src: yes
+    remote_src: true
     mode: 0755
-
-
 
 - name: Copy systemd init file
   template:
@@ -38,8 +38,12 @@
     group: '{{ node_exporter_group }}'
     mode: '0644'
 
+- name: Just force systemd to reread configs
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+
 - name: Start node_exporter service
   service:
     name: node_exporter
     state: started
-    enabled: yes
+    enabled: true
