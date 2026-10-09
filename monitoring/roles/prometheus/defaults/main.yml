@@ -1,0 +1,21 @@
+prometheus_version: "3.11.3"
+
+prometheus_user: "prometheus"
+prometheus_group: "prometheus"
+
+prometheus_install_dir: "/usr/local/bin"
+prometheus_config_dir: "/etc/prometheus"
+prometheus_data_dir: "/var/lib/prometheus"
+
+prometheus_listen_address: "0.0.0.0"
+prometheus_listen_port: 9090
+
+prometheus_retention_time: "30d"
+prometheus_retention_size: "0"
+
+# Scrape settings
+prometheus_scrape_interval: "15s"
+prometheus_evaluation_interval: "15s"
+
+# Resource limits
+prometheus_memory_limit: "1G"

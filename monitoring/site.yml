@@ -1,0 +1,28 @@
+---
+- name: Setup grafana
+  hosts: grafana
+  become: true
+  roles:
+    - grafana
+  tags: [grafana]
+
+- name: Setup prometheus
+  hosts: prometheus
+  become: true
+  roles:
+    - role: prometheus
+      tags: install
+    - role: prometheus
+      tags: config
+  tags: [prometheus]
+
+- name: Config prometheus
+  hosts: prometheus
+  become: true
+  tasks:
+    - name: config
+      ansible.builtin.import_role:
+        name: prometheus
+        tasks_from: config
+  tags: [prometheus-config]
+      

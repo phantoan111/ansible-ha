@@ -1,0 +1,50 @@
+- name: Install prerequisite packages
+  apt:
+    name: [ 'apt-transport-https', 'wget', 'gnupg']
+    state: present
+    update_cache: true
+
+- name: Create keyring dir
+  file:
+    path: /etc/apt/keyrings
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Add Grafana GPG key
+  get_url:
+    url: "https://apt.grafana.com/gpg-full.key"
+    dest: "/etc/apt/keyrings/grafana.asc"
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Add Grafana APT repository for Ubuntu
+  apt_repository:
+    repo: "deb [signed-by=/etc/apt/keyrings/grafana.asc] https://apt.grafana.com stable main"
+    state: present
+    filename: grafana
+
+
+
+- name: Install Grafana
+  apt:
+    name: grafana
+    state: present
+    update_cache: true
+
+- name: copy custom grafana config
+  ansible.builtin.template:
+    src: grafana.conf.j2
+    dest: /etc/grafana/grafana.ini
+
+- name: Force systemd to reread configs (systemctl daemon-reload)
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+
+- name: Start grafana server
+  systemd:
+    name: grafana-server
+    enabled: true
+    state: started
