@@ -16,30 +16,28 @@
 
 
 - name: Add Cri-O GPG key
-  shell: |
-    curl -fsSL https://download.opensuse.org/repositories/isv:/cri-o:/stable:/{{ cri_o_versions }}/deb/Release.key \
-      | gpg --dearmor --yes -o /etc/apt/keyrings/cri-o-apt-keyring.gpg
-  args:
-    creates: /etc/apt/keyrings/cri-o-apt-keyring.gpg
+  get_url:
+    url: "https://download.opensuse.org/repositories/isv:/cri-o:/stable:/{{ cri_o_versions }}/deb/Release.key"
+    dest: "/etc/apt/keyrings/cri-o-apt-keyring.gpg"
+    owner: root
+    group: root
+    mode: "0644"
 
 
 - name: Add Cri-o repository
-  shell: |
-    echo \
-      "deb [signed-by=/etc/apt/keyrings/cri-o-apt-keyring.gpg] \
-      https://download.opensuse.org/repositories/isv:/cri-o:/stable:/{{ cri_o_versions }}/deb/ /" \
-      > /etc/apt/sources.list.d/cri-o.list
+  apt_repository:
+    repo: "deb [signed-by=/etc/apt/keyrings/cri-o-apt-keyring.gpg] https://download.opensuse.org/repositories/isv:/cri-o:/stable:/{{ cri_o_versions }}/deb/ /"
+    state: present
+    filename: cri-o
 
 
-- name: Update apt cache
-  apt:
-    update_cache: yes
 
 - name: Install cri-o
   apt:
-    name:
-      - "crio"
+    name: cri-o
     state: present
+    update_cache: true
+
 
 
 
@@ -59,7 +57,7 @@
 - name: Restart crio
   systemd:
     name: crio
-    enabled: yes
+    enabled: true
     state: restarted
 
 - name: Wait for crio socket
