@@ -25,4 +25,3 @@
         name: prometheus
         tasks_from: config
   tags: [prometheus-config]
-      
