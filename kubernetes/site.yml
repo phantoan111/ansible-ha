@@ -1,0 +1,42 @@
+---
+- name: Base setup k8s
+  hosts: k8s
+  become: true
+  roles:
+    - common
+    - crio
+    - kubernetes-install
+    # - loadbalancer
+    # - vip
+  tags: [base-init]
+
+- name: Setup loadbalancer
+  hosts: masters
+  become: true
+  roles:
+    - loadbalancer
+    - vip
+  tags: [loadbalancer]
+
+- name: Init master 
+  hosts: master_init
+  become: true
+  roles:
+    - master-init
+  tags: [master-init]
+
+- name: Join control node
+  hosts: master_join
+  become: true
+  roles:
+    - master-join
+  tags: [join-master]
+
+- name: Join worker node
+  hosts: workers
+  become: true
+  roles:
+    - worker
+  tags: [join-worker]
+
+

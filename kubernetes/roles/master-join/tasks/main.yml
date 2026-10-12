@@ -13,13 +13,14 @@
   run_once: true
   register: certificate_key
   environment:
-    KUBECONFIG: /etc/kubernetes/admin.conf
+    KUBECONFIG: /root/.kube/config
 
 - name: Generate join command
   shell: |
     kubeadm token create --print-join-command --config /tmp/kubeadm-join.yml
   delegate_to: "{{ groups['master_init'][0] }}"    
   register: join_cmd
+  run_once: true
 
 - name: Join control plane
   shell: |
@@ -35,4 +36,4 @@
       --timeout=600s
   delegate_to: "{{ groups['master_init'][0] }}"
   environment:
-    KUBECONFIG: /etc/kubernetes/admin.conf    
+    KUBECONFIG: /root/.kube/config    
