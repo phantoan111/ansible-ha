@@ -13,22 +13,41 @@
     path: /etc/apt/keyrings
     state: directory
     mode: '0755'
-
-
-- name: Add Cri-O GPG key
-  get_url:
-    url: "https://download.opensuse.org/repositories/isv:/cri-o:/stable:/{{ cri_o_versions }}/deb/Release.key"
-    dest: "/etc/apt/keyrings/cri-o-apt-keyring.gpg"
     owner: root
     group: root
+
+
+- name: Download Cri-O GPG key
+  get_url:
+    #    url: "https://build.opensuse.org/projects/isv:cri-o:stable:{{ cri_o_versions }}/signing_keys/download?kind=gpg"
+    url: "https://download.opensuse.org/repositories/isv:/cri-o:/stable:/{{ cri_o_versions }}/deb/Release.key"
+    dest: "/tmp/cri-o-apt-release.key"
     mode: "0644"
+  register: result_key
+  until: result_key is not failed
+  retries: 5
+  delay: 10
+
+- name: Dearmor and install cri-o GPG key
+  ansible.builtin.command:
+    cmd: gpg --dearmor -o /etc/apt/keyrings/cri-o-apt-keyring.gpg /tmp/cri-o-apt-release.key
+    creates: /etc/apt/keyrings/cri-o-apt-keyring.gpg
 
 
-- name: Add Cri-o repository
-  apt_repository:
-    repo: "deb [signed-by=/etc/apt/keyrings/cri-o-apt-keyring.gpg] https://download.opensuse.org/repositories/isv:/cri-o:/stable:/{{ cri_o_versions }}/deb/ /"
-    state: present
-    filename: cri-o
+
+
+# - name: Add Cri-o repository
+#   apt_repository:
+#     repo: "deb [signed-by=/etc/apt/keyrings/cri-o-apt-keyring.gpg] https://download.opensuse.org/repositories/isv:/cri-o:/stable:/{{ cri_o_versions }}/deb/ /"
+#     state: present
+#     filename: cri-o
+
+- name: Add Cri-o repo
+  copy:
+    dest: /etc/apt/sources.list.d/cri-o.list
+    mode: '0644'
+    content: |
+      deb [signed-by=/etc/apt/keyrings/cri-o-apt-keyring.gpg] https://download.opensuse.org/repositories/isv:/cri-o:/stable:/{{ cri_o_versions }}/deb/ /
 
 
 

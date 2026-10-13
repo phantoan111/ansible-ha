@@ -13,7 +13,7 @@ crictl_version: "1.36.0"
 cni_plugin: "calico"
 calico_version: "3.32.0"
 
-criSocket: "unix:///var/run/crio/crio.sock"
+cri_Socket: "unix:///var/run/crio/crio.sock"
 
 
 

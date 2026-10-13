@@ -10,6 +10,10 @@
       kubeadm init --config /tmp/kubeadm-config.yaml 
   register: init_result
 
+- name: print result init 
+  ansible.builtin.debug:
+    msg: "{{ init_result }}"
+
 - name: Create .kube directory for root
   ansible.builtin.file:
     path: /root/.kube
@@ -19,11 +23,11 @@
 - name: Copy admin config
   ansible.builtin.copy:
     src: /etc/kubernetes/admin.conf
-    dest: /root/.kube/config
+    dest: ~/.kube/config
     remote_src: yes
     owner: root
     group: root
-    changed_when: false
+
 
 
 # ======================
@@ -79,16 +83,16 @@
   changed_when: false
 
 
-- name: Wait for control plane pods to be ready
-  ansible.builtin.command:
-    cmd: kubectl get pods -n kube-system -o json
-  register: kube_pods
-  until: >
-    (kube_pods.stdout | from_json).items |
-    selectattr('status.phase', 'equalto', 'Running') | list | length >= 4
-  retries: 30
-  delay: 10
-  changed_when: false
+# - name: Wait for control plane pods to be ready
+#   ansible.builtin.command:
+#     cmd: kubectl get pods -n kube-system -o json
+#   register: kube_pods
+#   until: >
+#     (kube_pods.stdout | from_json).items |
+#     selectattr('status.phase', 'equalto', 'Running') | list | length >= 4
+#   retries: 30
+#   delay: 10
+#   changed_when: false
 
 
 - name: Generate join command
